@@ -16,6 +16,7 @@ export function createApp({ pool } = {}) {
     const destinations = createDestinationsRouter({ pool });
     app.get('/api/destinations', destinations.list);
     app.post('/api/destinations', destinations.create);
+    app.put('/api/destinations/:id', destinations.update);
   }
 
   app.use((error, _request, response, _next) => {

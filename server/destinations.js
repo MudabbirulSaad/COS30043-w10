@@ -7,6 +7,10 @@ function toPositiveInteger(value, fallback) {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
 }
 
+function readId(value) {
+  return toPositiveInteger(value, null);
+}
+
 function mapDestination(row) {
   return {
     id: row.id,
@@ -81,12 +85,7 @@ export function createDestinationsRouter({ pool }) {
 
         response.json({
           data: rows.map(mapDestination),
-          pagination: {
-            page,
-            pageSize,
-            total,
-            totalPages: Math.ceil(total / pageSize)
-          }
+          pagination: { page, pageSize, total, totalPages: Math.ceil(total / pageSize) }
         });
       } catch (error) {
         next(error);
@@ -105,17 +104,46 @@ export function createDestinationsRouter({ pool }) {
         const [result] = await pool.execute(
           `INSERT INTO travel_destinations (name, country, category, description, rating)
            VALUES (?, ?, ?, ?, ?)`,
-          [
-            destination.name,
-            destination.country,
-            destination.category,
-            destination.description,
-            destination.rating
-          ]
+          [destination.name, destination.country, destination.category, destination.description, destination.rating]
         );
 
         const created = await findDestination(pool, result.insertId);
         response.status(201).json(created);
+      } catch (error) {
+        next(error);
+      }
+    },
+
+    async update(request, response, next) {
+      try {
+        const id = readId(request.params.id);
+
+        if (!id) {
+          response.status(404).json({ error: 'Destination not found.' });
+          return;
+        }
+
+        const { destination, errors } = readDestinationInput(request.body);
+
+        if (Object.keys(errors).length > 0) {
+          response.status(400).json({ errors });
+          return;
+        }
+
+        const [result] = await pool.execute(
+          `UPDATE travel_destinations
+           SET name = ?, country = ?, category = ?, description = ?, rating = ?
+           WHERE id = ?`,
+          [destination.name, destination.country, destination.category, destination.description, destination.rating, id]
+        );
+
+        if (result.affectedRows === 0) {
+          response.status(404).json({ error: 'Destination not found.' });
+          return;
+        }
+
+        const updated = await findDestination(pool, id);
+        response.json(updated);
       } catch (error) {
         next(error);
       }
