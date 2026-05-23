@@ -47,4 +47,45 @@ describe('destinations API', () => {
       }
     });
   });
+
+  it('creates a destination from valid form data', async () => {
+    const pool = {
+      execute: async (sql) => {
+        if (sql.startsWith('INSERT INTO travel_destinations')) {
+          return [{ insertId: 16 }];
+        }
+
+        return [
+          [
+            {
+              id: 16,
+              name: 'Queenstown',
+              country: 'New Zealand',
+              category: 'Mountain',
+              description: 'Lakeside town known for alpine scenery and adventure activities.',
+              rating: '4.8'
+            }
+          ]
+        ];
+      }
+    };
+
+    const response = await request(createApp({ pool })).post('/api/destinations').send({
+      name: 'Queenstown',
+      country: 'New Zealand',
+      category: 'Mountain',
+      description: 'Lakeside town known for alpine scenery and adventure activities.',
+      rating: 4.8
+    });
+
+    expect(response.status).toBe(201);
+    expect(response.body).toEqual({
+      id: 16,
+      name: 'Queenstown',
+      country: 'New Zealand',
+      category: 'Mountain',
+      description: 'Lakeside town known for alpine scenery and adventure activities.',
+      rating: 4.8
+    });
+  });
 });

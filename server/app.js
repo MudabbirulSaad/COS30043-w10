@@ -15,6 +15,7 @@ export function createApp({ pool } = {}) {
   if (pool) {
     const destinations = createDestinationsRouter({ pool });
     app.get('/api/destinations', destinations.list);
+    app.post('/api/destinations', destinations.create);
   }
 
   app.use((error, _request, response, _next) => {

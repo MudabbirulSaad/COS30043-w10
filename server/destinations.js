@@ -18,6 +18,45 @@ function mapDestination(row) {
   };
 }
 
+function cleanText(value) {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
+function readDestinationInput(body) {
+  const destination = {
+    name: cleanText(body.name),
+    country: cleanText(body.country),
+    category: cleanText(body.category),
+    description: cleanText(body.description),
+    rating: Number(body.rating)
+  };
+
+  const errors = {};
+
+  for (const field of ['name', 'country', 'category', 'description']) {
+    if (!destination[field]) {
+      errors[field] = 'This field is required.';
+    }
+  }
+
+  if (!Number.isFinite(destination.rating) || destination.rating < 0 || destination.rating > 5) {
+    errors.rating = 'Rating must be a number between 0 and 5.';
+  }
+
+  return { destination, errors };
+}
+
+async function findDestination(pool, id) {
+  const [rows] = await pool.execute(
+    `SELECT id, name, country, category, description, rating
+     FROM travel_destinations
+     WHERE id = ?`,
+    [id]
+  );
+
+  return rows[0] ? mapDestination(rows[0]) : null;
+}
+
 export function createDestinationsRouter({ pool }) {
   if (!pool) {
     throw new Error('A MySQL pool is required for destination routes.');
@@ -49,6 +88,34 @@ export function createDestinationsRouter({ pool }) {
             totalPages: Math.ceil(total / pageSize)
           }
         });
+      } catch (error) {
+        next(error);
+      }
+    },
+
+    async create(request, response, next) {
+      try {
+        const { destination, errors } = readDestinationInput(request.body);
+
+        if (Object.keys(errors).length > 0) {
+          response.status(400).json({ errors });
+          return;
+        }
+
+        const [result] = await pool.execute(
+          `INSERT INTO travel_destinations (name, country, category, description, rating)
+           VALUES (?, ?, ?, ?, ?)`,
+          [
+            destination.name,
+            destination.country,
+            destination.category,
+            destination.description,
+            destination.rating
+          ]
+        );
+
+        const created = await findDestination(pool, result.insertId);
+        response.status(201).json(created);
       } catch (error) {
         next(error);
       }
