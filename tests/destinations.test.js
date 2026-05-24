@@ -68,4 +68,15 @@ describe('destinations API', () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ id: 5, name: 'Paris', country: 'France', category: 'City', description: 'Historic city known for museums, food, and architecture.', rating: 4.9 });
   });
+
+  it('deletes an existing destination', async () => {
+    const pool = {
+      execute: async () => [{ affectedRows: 1 }]
+    };
+
+    const response = await request(createApp({ pool })).delete('/api/destinations/8');
+
+    expect(response.status).toBe(204);
+    expect(response.text).toBe('');
+  });
 });

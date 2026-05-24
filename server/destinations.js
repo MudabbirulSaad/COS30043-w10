@@ -147,6 +147,28 @@ export function createDestinationsRouter({ pool }) {
       } catch (error) {
         next(error);
       }
+    },
+
+    async remove(request, response, next) {
+      try {
+        const id = readId(request.params.id);
+
+        if (!id) {
+          response.status(404).json({ error: 'Destination not found.' });
+          return;
+        }
+
+        const [result] = await pool.execute('DELETE FROM travel_destinations WHERE id = ?', [id]);
+
+        if (result.affectedRows === 0) {
+          response.status(404).json({ error: 'Destination not found.' });
+          return;
+        }
+
+        response.status(204).send();
+      } catch (error) {
+        next(error);
+      }
     }
   };
 }

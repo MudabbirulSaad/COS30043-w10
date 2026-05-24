@@ -17,6 +17,7 @@ export function createApp({ pool } = {}) {
     app.get('/api/destinations', destinations.list);
     app.post('/api/destinations', destinations.create);
     app.put('/api/destinations/:id', destinations.update);
+    app.delete('/api/destinations/:id', destinations.remove);
   }
 
   app.use((error, _request, response, _next) => {
