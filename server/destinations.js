@@ -75,7 +75,9 @@ export function createDestinationsRouter({ pool }) {
         const offset = (page - 1) * pageSize;
 
         const [[{ total }]] = await pool.execute('SELECT COUNT(*) AS total FROM travel_destinations');
-        const [rows] = await pool.execute(
+        const pageQuery = pool.query || pool.execute;
+        const [rows] = await pageQuery.call(
+          pool,
           `SELECT id, name, country, category, description, rating
            FROM travel_destinations
            ORDER BY id
