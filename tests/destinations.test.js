@@ -55,9 +55,13 @@ describe('destinations API', () => {
   });
 
   it('updates an existing destination', async () => {
+    let updateSql = '';
     const pool = {
       execute: async (sql) => {
-        if (sql.startsWith('UPDATE travel_destinations')) return [{ affectedRows: 1 }];
+        if (sql.startsWith('UPDATE travel_destinations')) {
+          updateSql = sql;
+          return [{ affectedRows: 1 }];
+        }
         return [[{ id: 5, name: 'Paris', country: 'France', category: 'City', description: 'Historic city known for museums, food, and architecture.', rating: '4.9' }]];
       }
     };
@@ -72,6 +76,7 @@ describe('destinations API', () => {
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ id: 5, name: 'Paris', country: 'France', category: 'City', description: 'Historic city known for museums, food, and architecture.', rating: 4.9 });
+    expect(updateSql).toContain('updated_at = CURRENT_TIMESTAMP');
   });
 
   it('returns not found when updating a missing destination', async () => {

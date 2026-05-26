@@ -134,7 +134,7 @@ export function createDestinationsRouter({ pool }) {
 
         const [result] = await pool.execute(
           `UPDATE travel_destinations
-           SET name = ?, country = ?, category = ?, description = ?, rating = ?
+           SET name = ?, country = ?, category = ?, description = ?, rating = ?, updated_at = CURRENT_TIMESTAMP
            WHERE id = ?`,
           [destination.name, destination.country, destination.category, destination.description, destination.rating, id]
         );

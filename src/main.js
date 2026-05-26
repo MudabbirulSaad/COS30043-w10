@@ -1,6 +1,12 @@
 import './styles.css';
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+const configuredApiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
+const defaultApiBaseUrl = import.meta.env.DEV
+  ? 'http://localhost:3000'
+  : import.meta.env.BASE_URL.replace(/\/$/, '');
+const apiBaseUrl = import.meta.env.PROD && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/.test(configuredApiBaseUrl || '')
+  ? defaultApiBaseUrl
+  : configuredApiBaseUrl || defaultApiBaseUrl;
 const pageSize = 5;
 
 const state = {

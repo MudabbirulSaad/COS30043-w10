@@ -10,6 +10,7 @@
     "test": "dotenvx run -- vitest run",
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0",
+    "db:init": "dotenvx run -- node scripts/init-database.js",
     "db:seed": "dotenvx run -- node scripts/seed-database.js"
   },
   "dependencies": {
