@@ -29,9 +29,9 @@ describe('mysql pool configuration', () => {
 
   it('defaults the database port to 3306', async () => {
     process.env.DB_HOST = 'feenix-mariadb.swin.edu.au';
-    process.env.DB_USER = 's105281389';
+    process.env.DB_USER = 'coursework_user';
     process.env.DB_PASSWORD = 'password';
-    process.env.DB_NAME = 's105281389_db';
+    process.env.DB_NAME = 'coursework_db';
     delete process.env.DB_PORT;
 
     const mysql = (await import('mysql2/promise')).default;
@@ -43,9 +43,9 @@ describe('mysql pool configuration', () => {
       expect.objectContaining({
         host: 'feenix-mariadb.swin.edu.au',
         port: 3306,
-        user: 's105281389',
+        user: 'coursework_user',
         password: 'password',
-        database: 's105281389_db'
+        database: 'coursework_db'
       })
     );
   });

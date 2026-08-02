@@ -1,5 +1,9 @@
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 
-export default defineConfig({
-  base: '/cos30043/s105281389/w10/'
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
+
+  return {
+    base: env.VITE_BASE_PATH || '/'
+  };
 });
